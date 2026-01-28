@@ -5,12 +5,12 @@ import { PORT } from "./secrets.ts";
 import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { errorMiddleware } from './middlewares/errors.ts';
+import { SignUpSchema } from './schema/user.ts';
 
 const app: Express = express();
 app.use(express.json());
 app.use("/api", authRoutes);
 app.use(errorMiddleware)
-// Create MySQL adapter with connection options
 const adapter = new PrismaMariaDb({
   host: process.env.DATABASE_HOST || 'localhost',
   user: process.env.DATABASE_USER || 'root',
@@ -20,11 +20,11 @@ const adapter = new PrismaMariaDb({
   connectionLimit: 5
 });
 
-// Initialize Prisma Client with adapter
 export const prismaClient = new PrismaClient({
   adapter,
   log: ["query", "info", "warn", "error"],
-});
+})
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
