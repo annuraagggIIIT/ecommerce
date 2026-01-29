@@ -14,13 +14,13 @@ pipeline {
 
         stage('Type Check') {
             steps {
-                bat 'npm run typecheck || echo no typecheck script'
+                bat 'npm run typecheck'
             }
         }
 
         stage('Build') {
             steps {
-                bat 'npm run build || echo no build script'
+                bat 'npm run build'
             }
         }
     }
