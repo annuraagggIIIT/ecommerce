@@ -8,19 +8,19 @@ pipeline {
     stages {
         stage('Install Dependencies') {
             steps {
-                sh 'npm install'
+                bat 'npm install'
             }
         }
 
         stage('Type Check') {
             steps {
-                sh 'npm run typecheck || echo "no typecheck script"'
+                bat 'npm run typecheck || echo no typecheck script'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'npm run build || echo "no build script"'
+                bat 'npm run build || echo no build script'
             }
         }
     }
