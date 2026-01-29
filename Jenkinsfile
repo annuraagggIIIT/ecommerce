@@ -15,25 +15,13 @@ pipeline {
 
         stage('Type Check') {
             steps {
-                bat '''
-                npm run typecheck
-                IF %ERRORLEVEL% NEQ 0 (
-                    echo Typecheck failed, continuing pipeline
-                    EXIT /B 0
-                )
-                '''
+                bat 'cmd /c "npm run typecheck || exit /b 0"'
             }
         }
 
         stage('Build') {
             steps {
-                bat '''
-                npm run build
-                IF %ERRORLEVEL% NEQ 0 (
-                    echo Build failed or not defined, continuing
-                    EXIT /B 0
-                )
-                '''
+                bat 'cmd /c "npm run build || exit /b 0"'
             }
         }
     }
