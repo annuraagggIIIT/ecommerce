@@ -8,6 +8,7 @@ import { ErrorCode } from "../exceptions/root.ts";
 import { ca } from "zod/locales";
 import { UnprocessableEntity } from "../exceptions/validation.ts";
 import { SignUpSchema } from "../schema/user.ts";
+import { NotFoundException } from "../exceptions/not-found.ts";
 
 export const signup = async (req: Request, res: Response, next: NextFunction) => {
     SignUpSchema.parse(req.body);
@@ -26,7 +27,7 @@ export const login = async (req: Request, res: Response) => {
     const { email, password } = req.body;
     let user = await prismaClient.user.findFirst({ where: { email } });
     if (!user) {
-        return res.status(400).json({ message: "User does not exists" });
+        throw new NotFoundException("User not found", ErrorCode.USER_NOT_FOUND);
     }
     if (!(compareSync(password, user.password))) {
         throw new BadRequestException("Invalid password", ErrorCode.INCORRECT_PASSWORD);
