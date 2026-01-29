@@ -6,12 +6,7 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/annuraagggIIIT/ecommerce.git'
-            }
-        }
-
+    
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
