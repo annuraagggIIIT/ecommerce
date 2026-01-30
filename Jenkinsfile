@@ -18,6 +18,18 @@ pipeline {
             }
         }
 
+        stage('Unit Tests') {
+            steps {
+                bat 'npm run test:unit'
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                bat 'npm run test:integration'
+            }
+        }
+
         stage('Build') {
             steps {
                 bat 'npm run build'
