@@ -4,7 +4,7 @@ pipeline {
     tools {
         nodejs 'node18'
     }
-    //stages
+
     stages {
         stage('Install Dependencies') {
             steps {
@@ -24,15 +24,9 @@ pipeline {
             }
         }
 
-        stage('Unit Tests') {
+        stage('Tests with Coverage') {
             steps {
-                bat 'npm run test:unit'
-            }
-        }
-
-        stage('Integration Tests') {
-            steps {
-                bat 'npm run test:integration'
+                bat 'npm test'
             }
         }
 
