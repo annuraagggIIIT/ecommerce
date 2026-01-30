@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "npx nodemon src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "cross-env NODE_ENV=test JWT_SECRET=test-secret mocha --require tsx 'tests/unit/**/*.test.ts' --timeout 10000",
+    "test:integration": "cross-env NODE_ENV=test JWT_SECRET=test-secret mocha --require tsx 'tests/integration/**/*.test.ts' --timeout 15000",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],
@@ -14,10 +16,19 @@
   "type": "module",
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
+    "@types/chai": "^5.2.2",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^25.0.10",
+    "@types/sinon": "^17.0.4",
+    "@types/supertest": "^6.0.3",
+    "chai": "^5.2.0",
+    "cross-env": "^7.0.3",
+    "mocha": "^11.1.0",
     "nodemon": "^3.1.11",
+    "sinon": "^20.0.0",
+    "supertest": "^7.1.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
