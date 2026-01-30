@@ -38,3 +38,8 @@ export const login = async (req: Request, res: Response) => {
 
     res.json({ user, token })
 }
+
+// /me returns the logged in user details
+export const me = async (req: Request, res: Response) => {
+    res.json({ user: req.user });
+}
