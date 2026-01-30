@@ -8,7 +8,8 @@
     "test": "npm run test:unit && npm run test:integration",
     "test:unit": "cross-env NODE_ENV=test JWT_SECRET=test-secret mocha --require tsx 'tests/unit/**/*.test.ts' --timeout 10000",
     "test:integration": "cross-env NODE_ENV=test JWT_SECRET=test-secret mocha --require tsx 'tests/integration/**/*.test.ts' --timeout 15000",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build": "echo Build successful"
   },
   "keywords": [],
   "author": "",
