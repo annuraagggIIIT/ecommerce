@@ -12,6 +12,12 @@ pipeline {
             }
         }
 
+        stage('Generate Prisma Client') {
+            steps {
+                bat 'npx prisma generate'
+            }
+        }
+
         stage('Type Check') {
             steps {
                 bat 'npm run typecheck'
