@@ -3,16 +3,20 @@ import sinon, { type SinonSandbox, type SinonStub } from "sinon";
 import * as bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
+import { ZodError } from "zod";
 import { BadRequestException } from "../../../src/exceptions/bad-request.ts";
 import { NotFoundException } from "../../../src/exceptions/not-found.ts";
 import { ErrorCode } from "../../../src/exceptions/root.ts";
 import { SignUpSchema } from "../../../src/schema/user.ts";
 
+const TEST_PASSWORD = process.env.TEST_PASSWORD || "testpassword";
+const TEST_JWT_SECRET = process.env.TEST_JWT_SECRET || process.env.JWT_SECRET || "test-jwt-secret";
+
 const mockUser = {
     id: 1,
     name: "Test User",
     email: "test@example.com",
-    password: bcrypt.hashSync("password123", 10),
+    password: bcrypt.hashSync(TEST_PASSWORD, 10),
     createdAt: new Date(),
     updatedAt: new Date()
 };
@@ -48,19 +52,18 @@ describe("Auth Controller Unit Tests", () => {
 
     describe("signup logic", () => {
         it("should validate signup data with SignUpSchema", () => {
-            const validData = { name: "Test", email: "test@example.com", password: "password123" };
+            const validData = { name: "Test", email: "test@example.com", password: TEST_PASSWORD };
             expect(() => SignUpSchema.parse(validData)).to.not.throw();
         });
 
         it("should reject invalid signup data", () => {
             const invalidData = { name: "Test", email: "invalid", password: "123" };
-            expect(() => SignUpSchema.parse(invalidData)).to.throw();
+            expect(() => SignUpSchema.parse(invalidData)).to.throw(ZodError);
         });
 
         it("should hash password with bcrypt", () => {
-            const password = "password123";
-            const hashed = bcrypt.hashSync(password, 10);
-            expect(bcrypt.compareSync(password, hashed)).to.be.true;
+            const hashed = bcrypt.hashSync(TEST_PASSWORD, 10);
+            expect(bcrypt.compareSync(TEST_PASSWORD, hashed)).to.be.true;
             expect(bcrypt.compareSync("wrongpassword", hashed)).to.be.false;
         });
 
@@ -86,17 +89,15 @@ describe("Auth Controller Unit Tests", () => {
         });
 
         it("should verify password with bcrypt compareSync", () => {
-            const password = "password123";
-            const hashedPassword = bcrypt.hashSync(password, 10);
+            const hashedPassword = bcrypt.hashSync(TEST_PASSWORD, 10);
 
-            expect(bcrypt.compareSync(password, hashedPassword)).to.be.true;
+            expect(bcrypt.compareSync(TEST_PASSWORD, hashedPassword)).to.be.true;
             expect(bcrypt.compareSync("wrongpassword", hashedPassword)).to.be.false;
         });
 
         it("should generate JWT token with user id", () => {
-            const secret = "test-secret";
-            const token = jwt.sign({ userId: mockUser.id }, secret);
-            const decoded = jwt.verify(token, secret) as any;
+            const token = jwt.sign({ userId: mockUser.id }, TEST_JWT_SECRET);
+            const decoded = jwt.verify(token, TEST_JWT_SECRET) as any;
 
             expect(decoded.userId).to.equal(mockUser.id);
         });
@@ -126,7 +127,7 @@ describe("Auth Controller Unit Tests", () => {
 
         it("should format login response with user and token", () => {
             const res = createMockResponse();
-            const token = jwt.sign({ userId: 1 }, "test-secret");
+            const token = jwt.sign({ userId: 1 }, TEST_JWT_SECRET);
             const response = { user: mockUser, token };
 
             res.json!(response);

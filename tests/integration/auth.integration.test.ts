@@ -12,17 +12,20 @@ import { UnauthorizedException } from "../../src/exceptions/unauthorized.ts";
 import { ErrorCode } from "../../src/exceptions/root.ts";
 import { SignUpSchema } from "../../src/schema/user.ts";
 
+const TEST_PASSWORD = process.env.TEST_PASSWORD || "testpassword";
+const TEST_JWT_SECRET = process.env.TEST_JWT_SECRET || process.env.JWT_SECRET || "test-jwt-secret";
+
 describe("Auth Integration Tests", () => {
     let sandbox: SinonSandbox;
     let app: Express;
     let mockPrismaClient: any;
-    const JWT_SECRET = process.env.JWT_SECRET || "test-secret";
+    const JWT_SECRET = TEST_JWT_SECRET;
 
     const mockUser = {
         id: 1,
         name: "Test User",
         email: "test@example.com",
-        password: bcrypt.hashSync("password123", 10),
+        password: bcrypt.hashSync(TEST_PASSWORD, 10),
         createdAt: new Date(),
         updatedAt: new Date()
     };
@@ -102,7 +105,7 @@ describe("Auth Integration Tests", () => {
             const newUser = {
                 name: "New User",
                 email: "new@example.com",
-                password: "password123"
+                password: TEST_PASSWORD
             };
 
             mockPrismaClient.user.findFirst.resolves(null);
@@ -132,7 +135,7 @@ describe("Auth Integration Tests", () => {
                 .send({
                     name: "Test User",
                     email: "test@example.com",
-                    password: "password123"
+                    password: TEST_PASSWORD
                 })
                 .expect(400);
 
@@ -145,9 +148,12 @@ describe("Auth Integration Tests", () => {
                 .send({
                     name: "Test User",
                     email: "invalid-email",
-                    password: "password123"
+                    password: TEST_PASSWORD
                 })
                 .expect(500);
+
+            expect(response.body).to.have.property("message");
+            expect(response.body.message).to.equal("Internal Server Error");
         });
 
         it("should return error for short password", async () => {
@@ -159,6 +165,9 @@ describe("Auth Integration Tests", () => {
                     password: "12345"
                 })
                 .expect(500);
+
+            expect(response.body).to.have.property("message");
+            expect(response.body.message).to.equal("Internal Server Error");
         });
     });
 
@@ -170,7 +179,7 @@ describe("Auth Integration Tests", () => {
                 .post("/api/login")
                 .send({
                     email: "test@example.com",
-                    password: "password123"
+                    password: TEST_PASSWORD
                 })
                 .expect(200);
 
@@ -186,7 +195,7 @@ describe("Auth Integration Tests", () => {
                 .post("/api/login")
                 .send({
                     email: "notfound@example.com",
-                    password: "password123"
+                    password: TEST_PASSWORD
                 })
                 .expect(404);
 

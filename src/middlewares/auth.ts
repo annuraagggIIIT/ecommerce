@@ -14,21 +14,18 @@ export const authMiddleware = async(req: Request, res: Response, next: NextFunct
         return;
     }
     try {
-        //3. If token is present, verify it
-        const payload = jwt.verify(token, JWT_SECRET) as any; 
-        //4. get the user from the database/payload
-        const user = await prismaClient.user.findFirst({ where: { id: (payload as any).userId } });
+        const payload = jwt.verify(token, JWT_SECRET) as { userId: number };
+        const user = await prismaClient.user.findFirst({ where: { id: payload.userId } });
         if (!user) {
             next(new UnauthorizedException("User not found", ErrorCode.UNAUTHORIZED));
             return;
         }
-        //5. attach the user to the request object
         req.user = user;
         next();
-
     }
-    catch (error) {
-        next(new UnauthorizedException("Invalid token", ErrorCode.UNAUTHORIZED));
+    catch (error: unknown) {
+        const message = error instanceof Error ? error.message : "Invalid token";
+        next(new UnauthorizedException(message, ErrorCode.UNAUTHORIZED));
     }
 
 }
