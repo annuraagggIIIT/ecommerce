@@ -4,7 +4,7 @@ pipeline {
     tools {
         nodejs 'node18'
     }
-
+    //stages
     stages {
         stage('Install Dependencies') {
             steps {
@@ -12,9 +12,27 @@ pipeline {
             }
         }
 
+        stage('Generate Prisma Client') {
+            steps {
+                bat 'npx prisma generate'
+            }
+        }
+
         stage('Type Check') {
             steps {
                 bat 'npm run typecheck'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                bat 'npm run test:unit'
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                bat 'npm run test:integration'
             }
         }
 
