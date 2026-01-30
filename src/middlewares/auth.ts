@@ -2,7 +2,6 @@ import type { NextFunction, Request, Response } from "express";
 import { UnauthorizedException } from "../exceptions/unauthorized.ts";
 import { ErrorCode } from "../exceptions/root.ts";
 import jwt from "jsonwebtoken";
-import { ca } from "zod/locales";
 import { JWT_SECRET } from "../secrets.ts";
 import { prismaClient } from "../index.ts";
 
