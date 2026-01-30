@@ -5,8 +5,6 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../secrets.ts";
 import { BadRequestException } from "../exceptions/bad-request.ts";
 import { ErrorCode } from "../exceptions/root.ts";
-import { ca } from "zod/locales";
-import { UnprocessableEntity } from "../exceptions/validation.ts";
 import { SignUpSchema } from "../schema/user.ts";
 import { NotFoundException } from "../exceptions/not-found.ts";
 
