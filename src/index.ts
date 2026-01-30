@@ -17,7 +17,8 @@ const adapter = new PrismaMariaDb({
   password: process.env.DATABASE_PASSWORD || '0414',
   database: process.env.DATABASE_NAME || 'ecommerce',
   port: Number(process.env.DATABASE_PORT) || 3306,
-  connectionLimit: 5
+  connectionLimit: 5,
+  allowPublicKeyRetrieval: true
 });
 
 export const prismaClient = new PrismaClient({
