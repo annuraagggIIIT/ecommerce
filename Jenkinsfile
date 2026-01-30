@@ -6,7 +6,6 @@ pipeline {
     }
 
     stages {
-
         stage('Install Dependencies') {
             steps {
                 bat 'npm install'
@@ -15,13 +14,13 @@ pipeline {
 
         stage('Type Check') {
             steps {
-                bat 'cmd /c "npm run typecheck || exit /b 0"'
+                bat 'npm run typecheck'
             }
         }
 
         stage('Build') {
             steps {
-                bat 'cmd /c "npm run build || exit /b 0"'
+                bat 'npm run build'
             }
         }
     }
