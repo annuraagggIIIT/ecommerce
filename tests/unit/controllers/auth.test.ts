@@ -3,6 +3,7 @@ import sinon, { type SinonSandbox, type SinonStub } from "sinon";
 import * as bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import type { Request, Response, NextFunction } from "express";
+import { ZodError } from "zod";
 import { BadRequestException } from "../../../src/exceptions/bad-request.ts";
 import { NotFoundException } from "../../../src/exceptions/not-found.ts";
 import { ErrorCode } from "../../../src/exceptions/root.ts";
@@ -54,7 +55,7 @@ describe("Auth Controller Unit Tests", () => {
 
         it("should reject invalid signup data", () => {
             const invalidData = { name: "Test", email: "invalid", password: "123" };
-            expect(() => SignUpSchema.parse(invalidData)).to.throw();
+            expect(() => SignUpSchema.parse(invalidData)).to.throw(ZodError);
         });
 
         it("should hash password with bcrypt", () => {
