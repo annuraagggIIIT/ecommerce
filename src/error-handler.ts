@@ -1,5 +1,4 @@
 import type { NextFunction, Request, Response } from "express"
-import { ca } from "zod/locales"
 import { ErrorCode, HttpException } from "./exceptions/root.ts"
 import { InternalException } from "./exceptions/internal-exception.ts"
 

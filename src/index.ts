@@ -5,9 +5,9 @@ import { PORT } from "./secrets.ts";
 import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { errorMiddleware } from './middlewares/errors.ts';
-import { SignUpSchema } from './schema/user.ts';
 
 const app: Express = express();
+app.disable('x-powered-by');
 app.use(express.json());
 app.use("/api", authRoutes);
 app.use(errorMiddleware)
