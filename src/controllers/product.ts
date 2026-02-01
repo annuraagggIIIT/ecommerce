@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
-import { prismaClient } from "../index.ts";
-import { ca } from "zod/locales";
+import { prismaClient } from "../db/prisma.ts";
 import { NotFoundException } from "../exceptions/not-found.ts";
 import { ErrorCode } from "../exceptions/root.ts";
 
