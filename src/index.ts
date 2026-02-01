@@ -5,11 +5,13 @@ import { PORT } from "./secrets.ts";
 import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaMariaDb } from '@prisma/adapter-mariadb';
 import { errorMiddleware } from './middlewares/errors.ts';
+import productsRoutes from './routes/product.ts';
 
 const app: Express = express();
 app.disable('x-powered-by');
 app.use(express.json());
 app.use("/api", authRoutes);
+app.use("/api/products", productsRoutes);
 app.use(errorMiddleware)
 const adapter = new PrismaMariaDb({
   host: process.env.DATABASE_HOST || 'localhost',
