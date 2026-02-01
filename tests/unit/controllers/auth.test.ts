@@ -105,7 +105,7 @@ describe("Auth Controller Unit Tests", () => {
 
     describe("me endpoint logic", () => {
         it("should return user from request object", () => {
-            const req = createMockRequest({ user: mockUser });
+            const req = createMockRequest({ user: mockUser }) as any;
             const res = createMockResponse();
 
             res.json!({ user: req.user });
