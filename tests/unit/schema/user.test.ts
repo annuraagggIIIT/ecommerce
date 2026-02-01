@@ -15,7 +15,34 @@ describe("User Schema", () => {
 
             const result = SignUpSchema.parse(validData);
 
-            expect(result).to.deep.equal(validData);
+            expect(result.name).to.equal(validData.name);
+            expect(result.email).to.equal(validData.email);
+            expect(result.password).to.equal(validData.password);
+            expect(result.role).to.equal("USER");
+        });
+
+        it("should accept valid role ADMIN", () => {
+            const validData = {
+                name: "Admin User",
+                email: "admin@example.com",
+                password: TEST_PASSWORD,
+                role: "ADMIN"
+            };
+
+            const result = SignUpSchema.parse(validData);
+
+            expect(result.role).to.equal("ADMIN");
+        });
+
+        it("should reject invalid role", () => {
+            const invalidData = {
+                name: "Test User",
+                email: "test@example.com",
+                password: TEST_PASSWORD,
+                role: "INVALID_ROLE"
+            };
+
+            expect(() => SignUpSchema.parse(invalidData)).to.throw();
         });
 
         it("should reject invalid email", () => {

@@ -3,7 +3,7 @@ import { UnauthorizedException } from "../exceptions/unauthorized.ts";
 import { ErrorCode } from "../exceptions/root.ts";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../secrets.ts";
-import { prismaClient } from "../index.ts";
+import { prismaClient } from "../db/prisma.ts";
 
 export const authMiddleware = async(req: Request, res: Response, next: NextFunction) => {
     //1. Get the token from the Authorization header

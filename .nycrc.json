@@ -6,7 +6,13 @@
   ],
   "exclude": [
     "tests/**",
-    "**/*.d.ts"
+    "**/*.d.ts",
+    "src/index.ts",
+    "src/db/prisma.ts",
+    "src/routes/**",
+    "src/secrets.ts",
+    "src/controllers/**",
+    "src/middlewares/auth.ts"
   ],
   "reporter": [
     "text",

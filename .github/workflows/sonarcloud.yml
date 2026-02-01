@@ -40,6 +40,13 @@ jobs:
           TEST_JWT_SECRET: ${{ secrets.TEST_JWT_SECRET || 'test-jwt-secret-for-ci' }}
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD || 'testpassword' }}
 
+      - name: Verify coverage report
+        run: |
+          echo "Coverage files:"
+          ls -la coverage/
+          echo "First 50 lines of lcov.info:"
+          head -50 coverage/lcov.info
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         env:
