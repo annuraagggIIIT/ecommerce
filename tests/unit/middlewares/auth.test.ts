@@ -32,9 +32,11 @@ const createMockResponse = (): Partial<Response> => {
 
 const createMockNext = (): SinonStub => sinon.stub();
 
+const TEST_JWT_SECRET = process.env.TEST_JWT_SECRET || process.env.JWT_SECRET || "test-jwt-secret";
+
 describe("Auth Middleware Unit Tests", () => {
     let sandbox: SinonSandbox;
-    const JWT_SECRET = process.env.JWT_SECRET || "test-secret";
+    const JWT_SECRET = TEST_JWT_SECRET;
 
     beforeEach(() => {
         sandbox = sinon.createSandbox();
@@ -64,7 +66,8 @@ describe("Auth Middleware Unit Tests", () => {
         });
 
         it("should throw error for token with wrong secret", () => {
-            const token = jwt.sign({ userId: 1 }, "wrong-secret");
+            const wrongSecret = process.env.TEST_WRONG_SECRET || "different-secret-for-testing";
+            const token = jwt.sign({ userId: 1 }, wrongSecret);
             expect(() => jwt.verify(token, JWT_SECRET)).to.throw(jwt.JsonWebTokenError, "invalid signature");
         });
 
