@@ -1,10 +1,12 @@
 import sinon from "sinon";
 
+const TEST_HASHED_PASSWORD = process.env.TEST_HASHED_PASSWORD || "$2b$10$K8YpJQ.EqGzVF9Y3r8zGQeYcGQVr5TtKxJYQQ5TGhTQhTQhTQhTQh";
+
 export const mockUser = {
     id: 1,
     name: "Test User",
     email: "test@example.com",
-    password: "$2b$10$hashedpassword123456789012345678901234567890",
+    password: TEST_HASHED_PASSWORD,
     createdAt: new Date(),
     updatedAt: new Date()
 };

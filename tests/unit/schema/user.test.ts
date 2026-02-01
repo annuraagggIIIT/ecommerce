@@ -2,13 +2,15 @@ import { expect } from "chai";
 import { SignUpSchema } from "../../../src/schema/user.ts";
 import { ZodError } from "zod";
 
+const TEST_PASSWORD = process.env.TEST_PASSWORD || "testpassword";
+
 describe("User Schema", () => {
     describe("SignUpSchema", () => {
         it("should validate correct signup data", () => {
             const validData = {
                 name: "Test User",
                 email: "test@example.com",
-                password: "password123"
+                password: TEST_PASSWORD
             };
 
             const result = SignUpSchema.parse(validData);
@@ -20,7 +22,7 @@ describe("User Schema", () => {
             const invalidData = {
                 name: "Test User",
                 email: "invalid-email",
-                password: "password123"
+                password: TEST_PASSWORD
             };
 
             try {
@@ -49,7 +51,7 @@ describe("User Schema", () => {
         it("should reject missing name", () => {
             const invalidData = {
                 email: "test@example.com",
-                password: "password123"
+                password: TEST_PASSWORD
             };
 
             try {
@@ -63,7 +65,7 @@ describe("User Schema", () => {
         it("should reject missing email", () => {
             const invalidData = {
                 name: "Test User",
-                password: "password123"
+                password: TEST_PASSWORD
             };
 
             try {
@@ -104,7 +106,7 @@ describe("User Schema", () => {
             const invalidData = {
                 name: "",
                 email: "test@example.com",
-                password: "password123"
+                password: TEST_PASSWORD
             };
 
             const result = SignUpSchema.safeParse(invalidData);
