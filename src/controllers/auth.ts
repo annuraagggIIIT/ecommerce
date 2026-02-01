@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { prismaClient } from "../index.ts";
+import { prismaClient } from "../db/prisma.ts";
 import { hashSync, compareSync } from "bcrypt";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../secrets.ts";
