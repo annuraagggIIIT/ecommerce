@@ -148,6 +148,9 @@ describe("Auth Integration Tests", () => {
                     password: "password123"
                 })
                 .expect(500);
+
+            expect(response.body).to.have.property("message");
+            expect(response.body.message).to.equal("Internal Server Error");
         });
 
         it("should return error for short password", async () => {
@@ -159,6 +162,9 @@ describe("Auth Integration Tests", () => {
                     password: "12345"
                 })
                 .expect(500);
+
+            expect(response.body).to.have.property("message");
+            expect(response.body.message).to.equal("Internal Server Error");
         });
     });
 

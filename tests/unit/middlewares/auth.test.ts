@@ -60,12 +60,12 @@ describe("Auth Middleware Unit Tests", () => {
         });
 
         it("should throw error for invalid token", () => {
-            expect(() => jwt.verify("invalid-token", JWT_SECRET)).to.throw();
+            expect(() => jwt.verify("invalid-token", JWT_SECRET)).to.throw(jwt.JsonWebTokenError, "jwt malformed");
         });
 
         it("should throw error for token with wrong secret", () => {
             const token = jwt.sign({ userId: 1 }, "wrong-secret");
-            expect(() => jwt.verify(token, JWT_SECRET)).to.throw();
+            expect(() => jwt.verify(token, JWT_SECRET)).to.throw(jwt.JsonWebTokenError, "invalid signature");
         });
 
         it("should create UnauthorizedException for invalid token", () => {
