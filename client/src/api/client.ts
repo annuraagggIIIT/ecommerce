@@ -50,3 +50,15 @@ export const productsApi = {
     apiClient.put(`/products/${id}`, data),
   delete: (id: number) => apiClient.delete(`/products/${id}`),
 };
+
+// Users API
+export const usersApi = {
+  // Address management
+  addAddress: (data: { lineOne: string; lineTwo?: string; city: string; country: string; pinCode: string }) =>
+    apiClient.post('/users/address', data),
+  listAddresses: () => apiClient.get('/users/address'),
+  deleteAddress: (id: number) => apiClient.delete(`/users/address/${id}`),
+  // User profile
+  updateUser: (data: { name?: string; defaultShippingAddressId?: number; defaultBillingAddressId?: number }) =>
+    apiClient.put('/users/', data),
+};
