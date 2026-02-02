@@ -5,3 +5,4 @@ export { Products } from './Products';
 export { ProductDetail } from './ProductDetail';
 export { AdminProducts } from './AdminProducts';
 export { ProductForm } from './ProductForm';
+export { Addresses } from './Addresses';
