@@ -5,6 +5,7 @@ import authRoutes from "./routes/auth.ts";
 import { PORT } from "./secrets.ts";
 import { errorMiddleware } from './middlewares/errors.ts';
 import productsRoutes from './routes/product.ts';
+import userRoutes from './routes/users.ts';
 export { prismaClient } from './db/prisma.ts';
 
 const app: Express = express();
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/api", authRoutes);
 app.use("/api/products", productsRoutes);
+app.use("/api/users", userRoutes);
 app.use(errorMiddleware)
 
 

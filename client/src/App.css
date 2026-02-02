@@ -1,4 +1,6 @@
-/* Global Styles */
+/* Jurassic Park Dark Theme */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -6,26 +8,45 @@
 }
 
 :root {
-  --primary-color: #3b82f6;
-  --primary-hover: #2563eb;
-  --secondary-color: #6b7280;
-  --danger-color: #ef4444;
+  --primary-color: #f59e0b;
+  --primary-hover: #d97706;
+  --secondary-color: #065f46;
+  --secondary-hover: #047857;
+  --danger-color: #dc2626;
+  --danger-hover: #b91c1c;
   --success-color: #10b981;
-  --background-color: #f9fafb;
-  --card-background: #ffffff;
-  --text-color: #1f2937;
-  --text-light: #6b7280;
-  --border-color: #e5e7eb;
-  --border-radius: 8px;
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --background-color: #0f0f0f;
+  --background-secondary: #1a1a1a;
+  --card-background: #1f1f1f;
+  --card-hover: #2a2a2a;
+  --text-color: #e5e5e5;
+  --text-light: #a3a3a3;
+  --text-muted: #737373;
+  --border-color: #333333;
+  --border-glow: #f59e0b;
+  --border-radius: 4px;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 20px rgba(245, 158, 11, 0.3);
+  --jungle-gradient: linear-gradient(135deg, #064e3b 0%, #0f0f0f 100%);
+  --warning-stripe: repeating-linear-gradient(
+    45deg,
+    #000000,
+    #000000 10px,
+    #f59e0b 10px,
+    #f59e0b 20px
+  );
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--background-color);
+  background-image:
+    radial-gradient(ellipse at top, rgba(6, 78, 59, 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(0, 0, 0, 0.8) 0%, transparent 50%);
   color: var(--text-color);
   line-height: 1.6;
+  min-height: 100vh;
 }
 
 .app {
@@ -42,21 +63,29 @@ body {
   width: 100%;
 }
 
-/* Navbar */
+/* Navbar - Electric Fence Style */
 .navbar {
   background-color: var(--card-background);
   padding: 1rem 2rem;
-  box-shadow: var(--shadow);
+  border-bottom: 3px solid var(--primary-color);
+  box-shadow: var(--shadow), 0 3px 10px rgba(245, 158, 11, 0.2);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .navbar-brand a {
-  font-size: 1.5rem;
-  font-weight: bold;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 3px;
   color: var(--primary-color);
   text-decoration: none;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+  transition: text-shadow 0.3s;
+}
+
+.navbar-brand a:hover {
+  text-shadow: 0 0 20px rgba(245, 158, 11, 0.8);
 }
 
 .navbar-menu {
@@ -69,16 +98,26 @@ body {
   color: var(--text-color);
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.2s;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s;
 }
 
 .navbar-menu a:hover {
   color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
 }
 
 .user-info {
-  color: var(--text-light);
-  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 0.5rem 1rem;
+  background: rgba(245, 158, 11, 0.1);
+  border-radius: var(--border-radius);
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 /* Buttons */
@@ -87,20 +126,25 @@ body {
   border: none;
   border-radius: var(--border-radius);
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   text-decoration: none;
   display: inline-block;
-  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s;
 }
 
 .btn-primary {
   background-color: var(--primary-color);
-  color: white;
+  color: #000000;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
 }
 
 .btn-primary:hover {
   background-color: var(--primary-hover);
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+  transform: translateY(-2px);
 }
 
 .btn-secondary {
@@ -109,7 +153,8 @@ body {
 }
 
 .btn-secondary:hover {
-  background-color: #4b5563;
+  background-color: var(--secondary-hover);
+  transform: translateY(-2px);
 }
 
 .btn-danger {
@@ -118,13 +163,14 @@ body {
 }
 
 .btn-danger:hover {
-  background-color: #dc2626;
+  background-color: var(--danger-hover);
+  transform: translateY(-2px);
 }
 
 .btn-logout {
   background-color: transparent;
   color: var(--danger-color);
-  border: 1px solid var(--danger-color);
+  border: 2px solid var(--danger-color);
   padding: 0.5rem 1rem;
 }
 
@@ -139,8 +185,9 @@ body {
 }
 
 .btn:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none !important;
 }
 
 /* Forms */
@@ -153,22 +200,33 @@ body {
   margin-bottom: 0.5rem;
   font-weight: 500;
   color: var(--text-color);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
 }
 
 .form-group input,
 .form-group textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 1px solid var(--border-color);
+  background-color: var(--background-secondary);
+  border: 2px solid var(--border-color);
   border-radius: var(--border-radius);
   font-size: 1rem;
-  transition: border-color 0.2s;
+  color: var(--text-color);
+  transition: all 0.3s;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: var(--primary-color);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--text-muted);
 }
 
 .form-actions {
@@ -187,16 +245,32 @@ body {
 
 .auth-container {
   background-color: var(--card-background);
-  padding: 2rem;
+  padding: 2.5rem;
   border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
   box-shadow: var(--shadow-lg);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
+  position: relative;
+}
+
+.auth-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--warning-stripe);
 }
 
 .auth-container h1 {
   margin-bottom: 1.5rem;
   text-align: center;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 3px;
+  color: var(--primary-color);
 }
 
 .auth-container form {
@@ -212,7 +286,7 @@ body {
 .auth-link {
   text-align: center;
   margin-top: 1.5rem;
-  color: var(--text-light);
+  color: var(--text-muted);
 }
 
 .auth-link a {
@@ -226,57 +300,113 @@ body {
 
 /* Error Messages */
 .error-message {
-  background-color: #fef2f2;
-  color: var(--danger-color);
+  background-color: rgba(220, 38, 38, 0.1);
+  color: #fca5a5;
   padding: 1rem;
   border-radius: var(--border-radius);
   margin-bottom: 1rem;
-  border: 1px solid #fecaca;
+  border: 1px solid rgba(220, 38, 38, 0.3);
 }
 
 /* Loading */
 .loading {
   text-align: center;
   padding: 3rem;
-  color: var(--text-light);
+  color: var(--primary-color);
   font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.loading::after {
+  content: '...';
+  animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
 }
 
 /* Products Grid */
 .products-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1.5rem;
   margin-top: 2rem;
 }
 
-/* Product Card */
+/* Product Card - Specimen Container Style */
 .product-card {
   background-color: var(--card-background);
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
   overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.product-card::before {
+  content: 'SPECIMEN';
+  position: absolute;
+  top: 10px;
+  right: -30px;
+  background: var(--danger-color);
+  color: white;
+  padding: 0.25rem 2rem;
+  font-size: 0.7rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  transform: rotate(45deg);
+  z-index: 1;
 }
 
 .product-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-glow);
+}
+
+.product-image {
+  position: relative;
+  overflow: hidden;
+  background: var(--jungle-gradient);
+}
+
+.product-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+  border-bottom: 3px solid var(--primary-color);
+  transition: transform 0.3s;
+}
+
+.product-card:hover .product-img {
+  transform: scale(1.05);
+}
+
+.product-img.large {
+  height: 400px;
 }
 
 .placeholder-image {
-  background-color: #e5e7eb;
+  background: var(--jungle-gradient);
   height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-light);
-  font-size: 1.2rem;
+  color: var(--text-muted);
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border-bottom: 3px solid var(--primary-color);
 }
 
 .placeholder-image.large {
   height: 400px;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
 }
 
 .product-info {
@@ -284,8 +414,11 @@ body {
 }
 
 .product-name {
-  font-size: 1.2rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 2px;
   margin-bottom: 0.5rem;
+  color: var(--text-color);
 }
 
 .product-description {
@@ -299,10 +432,11 @@ body {
 }
 
 .product-price {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: bold;
   color: var(--primary-color);
   margin-bottom: 1rem;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
 }
 
 .product-tags {
@@ -313,11 +447,14 @@ body {
 }
 
 .tag {
-  background-color: #e0e7ff;
-  color: #3730a3;
+  background-color: rgba(6, 95, 70, 0.3);
+  color: #34d399;
   padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.8rem;
+  border-radius: var(--border-radius);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 1px solid rgba(52, 211, 153, 0.3);
 }
 
 .product-actions {
@@ -330,7 +467,7 @@ body {
   flex: 1;
   min-width: auto;
   padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   text-align: center;
 }
 
@@ -345,10 +482,13 @@ body {
   margin-bottom: 1.5rem;
   color: var(--primary-color);
   text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
 }
 
 .back-link:hover {
-  text-decoration: underline;
+  text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
 }
 
 .product-detail {
@@ -357,7 +497,7 @@ body {
   gap: 2rem;
   background-color: var(--card-background);
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
   overflow: hidden;
 }
 
@@ -366,14 +506,19 @@ body {
 }
 
 .product-detail-info h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.5rem;
+  letter-spacing: 3px;
   margin-bottom: 1rem;
+  color: var(--text-color);
 }
 
 .product-detail-price {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: bold;
   color: var(--primary-color);
   margin-bottom: 1.5rem;
+  text-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
 }
 
 .product-detail-description,
@@ -383,9 +528,11 @@ body {
 
 .product-detail-description h3,
 .product-detail-tags h3 {
-  font-size: 1rem;
-  color: var(--text-light);
+  font-size: 0.9rem;
+  color: var(--text-muted);
   margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 /* Admin Pages */
@@ -394,6 +541,15 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.admin-header h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 3px;
+  color: var(--primary-color);
 }
 
 /* Product Form */
@@ -406,7 +562,26 @@ body {
   background-color: var(--card-background);
   padding: 2rem;
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  position: relative;
+}
+
+.product-form::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--warning-stripe);
+}
+
+.product-form h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  color: var(--primary-color);
+  margin-bottom: 1.5rem;
 }
 
 /* Home Page */
@@ -416,21 +591,50 @@ body {
 
 .hero {
   padding: 4rem 2rem;
-  background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
-  color: white;
+  background: var(--jungle-gradient);
+  border: 2px solid var(--primary-color);
   border-radius: var(--border-radius);
   margin-bottom: 3rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-glow);
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--warning-stripe);
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: var(--warning-stripe);
 }
 
 .hero h1 {
-  font-size: 2.5rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3.5rem;
+  letter-spacing: 5px;
   margin-bottom: 1rem;
+  color: var(--primary-color);
+  text-shadow: 0 0 30px rgba(245, 158, 11, 0.5);
 }
 
 .hero p {
   font-size: 1.2rem;
-  opacity: 0.9;
+  color: var(--text-light);
   margin-bottom: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .hero-actions {
@@ -440,13 +644,14 @@ body {
 }
 
 .hero-actions .btn-secondary {
-  background-color: rgba(255, 255, 255, 0.2);
-  border: 2px solid white;
+  background-color: transparent;
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
 }
 
 .hero-actions .btn-secondary:hover {
-  background-color: white;
-  color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: #000000;
 }
 
 .welcome-section {
@@ -454,11 +659,15 @@ body {
 }
 
 .welcome-section h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 2px;
   margin-bottom: 0.5rem;
+  color: var(--text-color);
 }
 
 .welcome-section p {
-  color: var(--text-light);
+  color: var(--text-muted);
   margin-bottom: 1.5rem;
 }
 
@@ -472,25 +681,29 @@ body {
   background-color: var(--card-background);
   padding: 2rem;
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
   text-decoration: none;
   color: var(--text-color);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.3s;
   min-width: 200px;
 }
 
 .quick-link-card:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-glow);
 }
 
 .quick-link-card h3 {
+  font-family: 'Bebas Neue', sans-serif;
   color: var(--primary-color);
+  font-size: 1.3rem;
+  letter-spacing: 2px;
   margin-bottom: 0.5rem;
 }
 
 .quick-link-card p {
-  color: var(--text-light);
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 
@@ -499,7 +712,11 @@ body {
 }
 
 .features h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 3px;
   margin-bottom: 2rem;
+  color: var(--primary-color);
 }
 
 .features-grid {
@@ -512,16 +729,24 @@ body {
   background-color: var(--card-background);
   padding: 2rem;
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s;
+}
+
+.feature-card:hover {
+  border-color: var(--secondary-color);
 }
 
 .feature-card h3 {
-  color: var(--primary-color);
+  font-family: 'Bebas Neue', sans-serif;
+  color: var(--success-color);
+  font-size: 1.2rem;
+  letter-spacing: 2px;
   margin-bottom: 0.75rem;
 }
 
 .feature-card p {
-  color: var(--text-light);
+  color: var(--text-muted);
 }
 
 /* Error Page */
@@ -531,18 +756,123 @@ body {
 }
 
 .error-page h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  letter-spacing: 2px;
+  color: var(--danger-color);
   margin-bottom: 1rem;
 }
 
 .error-page p {
-  color: var(--text-light);
+  color: var(--text-muted);
   margin-bottom: 2rem;
 }
 
 .no-products {
   text-align: center;
   padding: 3rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Addresses Page */
+.addresses-page {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.address-form-container {
+  margin-bottom: 2rem;
+}
+
+.addresses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.address-card {
+  background-color: var(--card-background);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+  padding: 1.5rem;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.address-card:hover {
+  border-color: var(--primary-color);
+}
+
+.address-badges {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--border-radius);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.badge-shipping {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.badge-billing {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.address-content {
+  margin-bottom: 1rem;
+}
+
+.address-line {
   color: var(--text-light);
+  margin-bottom: 0.25rem;
+}
+
+.address-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.btn-small {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.75rem;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-color);
 }
 
 /* Responsive */
@@ -550,6 +880,10 @@ body {
   .navbar {
     flex-direction: column;
     gap: 1rem;
+  }
+
+  .navbar-brand a {
+    font-size: 1.5rem;
   }
 
   .navbar-menu {
@@ -562,7 +896,7 @@ body {
   }
 
   .hero h1 {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
 
   .hero-actions {

@@ -10,6 +10,7 @@ import {
   ProductDetail,
   AdminProducts,
   ProductForm,
+  Addresses,
 } from './pages';
 import './App.css';
 
@@ -29,6 +30,14 @@ function App() {
                 <Route path="/signup" element={<Signup />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/products/:id" element={<ProductDetail />} />
+                <Route
+                  path="/addresses"
+                  element={
+                    <ProtectedRoute>
+                      <Addresses />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/admin/products"
                   element={

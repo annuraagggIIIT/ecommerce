@@ -6,6 +6,7 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
 enum Role {
   USER
   ADMIN
@@ -17,10 +18,28 @@ model User {
   email     String   @unique
   password  String
   role      Role     @default(USER)
+  defaultShippingAddressId Int?
+  defaultBillingAddressId  Int?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  addresses Address[]
   @@map("users")
+}
+
+model Address {
+  id        Int      @id @default(autoincrement())
+  lineOne   String
+  lineTwo   String?
+  city      String
+  country   String
+  pinCode   String
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("addresses")
 }
 
 model Product {
@@ -29,6 +48,7 @@ model Product {
   description String
   price       Decimal
   tags        String
+  image       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

@@ -51,7 +51,11 @@ export function ProductDetail() {
       </Link>
       <div className="product-detail">
         <div className="product-detail-image">
-          <div className="placeholder-image large">No Image</div>
+          {product.image ? (
+            <img src={product.image} alt={product.name} className="product-img large" />
+          ) : (
+            <div className="placeholder-image large">No Image</div>
+          )}
         </div>
         <div className="product-detail-info">
           <h1>{product.name}</h1>

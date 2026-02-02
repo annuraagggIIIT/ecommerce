@@ -13,7 +13,11 @@ export function ProductCard({ product, onDelete, showActions = false }: ProductC
   return (
     <div className="product-card">
       <div className="product-image">
-        <div className="placeholder-image">No Image</div>
+        {product.image ? (
+          <img src={product.image} alt={product.name} className="product-img" />
+        ) : (
+          <div className="placeholder-image">No Image</div>
+        )}
       </div>
       <div className="product-info">
         <h3 className="product-name">{product.name}</h3>

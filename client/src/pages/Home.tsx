@@ -7,15 +7,15 @@ export function Home() {
   return (
     <div className="home-page">
       <section className="hero">
-        <h1>Welcome to E-Commerce</h1>
-        <p>Discover amazing products at great prices</p>
+        <h1>Welcome to Jurassic Park</h1>
+        <p>65 Million Years in the Making</p>
         <div className="hero-actions">
           <Link to="/products" className="btn btn-primary btn-large">
-            Browse Products
+            View Dinosaurs
           </Link>
           {!isAuthenticated && (
             <Link to="/signup" className="btn btn-secondary btn-large">
-              Sign Up
+              Register Now
             </Link>
           )}
         </div>
@@ -23,17 +23,17 @@ export function Home() {
 
       {isAuthenticated && (
         <section className="welcome-section">
-          <h2>Hello, {user?.name}!</h2>
-          <p>What would you like to do today?</p>
+          <h2>Welcome Back, {user?.name}!</h2>
+          <p>Your prehistoric adventure awaits</p>
           <div className="quick-links">
             <Link to="/products" className="quick-link-card">
-              <h3>Browse Products</h3>
-              <p>Explore our catalog</p>
+              <h3>Explore Species</h3>
+              <p>Discover our dinosaur collection</p>
             </Link>
             {user?.role === 'ADMIN' && (
               <Link to="/admin/products" className="quick-link-card">
-                <h3>Manage Products</h3>
-                <p>Add, edit, or remove products</p>
+                <h3>Lab Control</h3>
+                <p>Manage dinosaur specimens</p>
               </Link>
             )}
           </div>
@@ -41,19 +41,19 @@ export function Home() {
       )}
 
       <section className="features">
-        <h2>Why Choose Us?</h2>
+        <h2>Why Choose Jurassic Park?</h2>
         <div className="features-grid">
           <div className="feature-card">
-            <h3>Quality Products</h3>
-            <p>We offer only the best quality products for our customers.</p>
+            <h3>Authentic Specimens</h3>
+            <p>Cloned from genuine prehistoric DNA preserved in amber.</p>
           </div>
           <div className="feature-card">
-            <h3>Fast Shipping</h3>
-            <p>Get your orders delivered quickly and efficiently.</p>
+            <h3>Secure Containment</h3>
+            <p>State-of-the-art electric fences and tracking systems.</p>
           </div>
           <div className="feature-card">
-            <h3>Great Support</h3>
-            <p>Our customer support team is here to help you 24/7.</p>
+            <h3>Expert Care</h3>
+            <p>Our team of paleontologists and geneticists available 24/7.</p>
           </div>
         </div>
       </section>
