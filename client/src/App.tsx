@@ -11,6 +11,7 @@ import {
   AdminProducts,
   ProductForm,
   Addresses,
+  Cart,
 } from './pages';
 import './App.css';
 
@@ -35,6 +36,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Addresses />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/cart"
+                  element={
+                    <ProtectedRoute>
+                      <Cart />
                     </ProtectedRoute>
                   }
                 />

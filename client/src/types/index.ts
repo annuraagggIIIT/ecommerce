@@ -43,3 +43,13 @@ export interface ApiError {
   errorCode: string;
   errors?: Record<string, unknown>;
 }
+
+export interface CartItem {
+  id: number;
+  userId: number;
+  productId: number;
+  quantity: number;
+  product?: Product;
+  createdAt: string;
+  updatedAt: string;
+}
