@@ -19,6 +19,7 @@ export function Navbar() {
         <Link to="/products">Products</Link>
         {isAuthenticated ? (
           <>
+            <Link to="/cart">Cart</Link>
             <Link to="/addresses">My Addresses</Link>
             {isAdmin && <Link to="/admin/products">Manage Products</Link>}
             <span className="user-info">Welcome, {user?.name}</span>

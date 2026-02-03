@@ -62,3 +62,11 @@ export const usersApi = {
   updateUser: (data: { name?: string; defaultShippingAddressId?: number; defaultBillingAddressId?: number }) =>
     apiClient.put('/users/', data),
 };
+
+// Cart API
+export const cartApi = {
+  getCart: () => apiClient.get('/cart'),
+  addItem: (data: { productId: number; quantity: number }) => apiClient.post('/cart', data),
+  updateQuantity: (id: number, quantity: number) => apiClient.put(`/cart/${id}`, { quantity }),
+  removeItem: (id: number) => apiClient.delete(`/cart/${id}`),
+};

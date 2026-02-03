@@ -1,4 +1,7 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { cartApi } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import type { Product } from '../types';
 
 interface ProductCardProps {
@@ -8,7 +11,27 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onDelete, showActions = false }: ProductCardProps) {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const tags = product.tags ? product.tags.split(',') : [];
+
+  const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    setIsAddingToCart(true);
+    try {
+      await cartApi.addItem({ productId: product.id, quantity: 1 });
+      alert('Added to cart!');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to add to cart');
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
 
   return (
     <div className="product-card">
@@ -34,6 +57,15 @@ export function ProductCard({ product, onDelete, showActions = false }: ProductC
           <Link to={`/products/${product.id}`} className="btn btn-primary">
             View Details
           </Link>
+          {!showActions && (
+            <button
+              onClick={handleAddToCart}
+              className="btn btn-secondary"
+              disabled={isAddingToCart}
+            >
+              {isAddingToCart ? '...' : 'Add to Cart'}
+            </button>
+          )}
           {showActions && onDelete && (
             <>
               <Link to={`/admin/products/edit/${product.id}`} className="btn btn-secondary">
