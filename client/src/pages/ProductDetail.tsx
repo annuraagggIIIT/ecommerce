@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { productsApi } from '../api/client';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { productsApi, cartApi } from '../api/client';
+import { useAuth } from '../context/AuthContext';
 import type { Product } from '../types';
 
 export function ProductDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -44,6 +49,23 @@ export function ProductDetail() {
 
   const tags = product.tags ? product.tags.split(',') : [];
 
+  const handleAddToCart = async () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    setIsAddingToCart(true);
+    try {
+      await cartApi.addItem({ productId: product.id, quantity });
+      alert('Added to cart!');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to add to cart');
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
   return (
     <div className="product-detail-page">
       <Link to="/products" className="back-link">
@@ -74,7 +96,31 @@ export function ProductDetail() {
               ))}
             </div>
           </div>
-          <button className="btn btn-primary btn-large">Add to Cart</button>
+          <div className="add-to-cart-section">
+            <div className="quantity-selector">
+              <button
+                className="qty-btn"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                disabled={quantity <= 1}
+              >
+                -
+              </button>
+              <span className="qty-value">{quantity}</span>
+              <button
+                className="qty-btn"
+                onClick={() => setQuantity((q) => q + 1)}
+              >
+                +
+              </button>
+            </div>
+            <button
+              className="btn btn-primary btn-large"
+              onClick={handleAddToCart}
+              disabled={isAddingToCart}
+            >
+              {isAddingToCart ? 'Adding...' : 'Add to Cart'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

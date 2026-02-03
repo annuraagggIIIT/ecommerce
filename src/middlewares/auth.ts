@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { UnauthorizedException } from "../exceptions/unauthorized.ts";
 import { ErrorCode } from "../exceptions/root.ts";
-import jwt from "jsonwebtoken";
+import jwt from "jsonwebtoken"; //can be improved by custom algorithm
 import { JWT_SECRET } from "../secrets.ts";
 import { prismaClient } from "../db/prisma.ts";
 
