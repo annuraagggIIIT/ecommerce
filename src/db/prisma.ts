@@ -14,4 +14,21 @@ const adapter = new PrismaMariaDb({
 export const prismaClient = new PrismaClient({
   adapter,
   log: process.env.NODE_ENV === 'test' ? [] : ["query", "info", "warn", "error"],
-});
+}).$extends({
+  result: {
+    address: {
+      formattedAddress: {
+        needs: {
+          lineOne: true,
+          lineTwo: true,
+          city: true,
+          country: true,
+          pinCode: true
+        },
+        compute: (addr) => {
+          return `${addr.lineOne},${addr.lineTwo},${addr.city},${addr.country}${addr.pinCode}`
+        }
+      }
+    }
+  }
+})
