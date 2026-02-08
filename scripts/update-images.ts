@@ -1,17 +1,16 @@
 import 'dotenv/config';
 import { PrismaClient } from "../src/generated/prisma/client.js";
-import { PrismaMariaDb } from '@prisma/adapter-mariadb';
+import { PrismaPg } from '@prisma/adapter-pg';
+import pg from 'pg';
 
-const adapter = new PrismaMariaDb({
-  host: process.env.DATABASE_HOST || 'localhost',
-  user: process.env.DATABASE_USER || 'root',
-  password: process.env.DATABASE_PASSWORD || '0414',
-  database: process.env.DATABASE_NAME || 'ecommerce',
-  port: Number(process.env.DATABASE_PORT) || 3306,
-  connectionLimit: 5,
-  allowPublicKeyRetrieval: true
+const connectionString = process.env.DATABASE_URL;
+
+const pool = new pg.Pool({
+  connectionString,
+  max: 5,
 });
 
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 const dinoImages: Record<string, string> = {
