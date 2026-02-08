@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node --import tsx src/index.ts",
+    "start": "npx tsx src/index.ts",
     "dev": "npx nodemon src/index.ts",
     "start:server": "npx nodemon src/index.ts",
     "start:client": "cd client && npm run dev",
