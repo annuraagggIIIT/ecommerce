@@ -194,7 +194,7 @@ export function AdminOrders() {
                 <div className="order-history">
                   <strong>Status History:</strong>
                   <div className="status-timeline">
-                    {order.events.map((event, index) => (
+                    {order.events.map((event) => (
                       <div key={event.id} className="timeline-item">
                         <span
                           className="timeline-status"
