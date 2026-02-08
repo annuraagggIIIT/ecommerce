@@ -5,7 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "npx nodemon src/index.ts",
+    "start": "node --import tsx src/index.ts",
+    "dev": "npx nodemon src/index.ts",
     "start:server": "npx nodemon src/index.ts",
     "start:client": "cd client && npm run dev",
     "client:install": "cd client && npm install",
@@ -15,7 +16,8 @@
     "test:unit": "cross-env NODE_ENV=test JWT_SECRET=test-jwt-secret-for-local-dev mocha --require tsx \"tests/unit/**/*.test.ts\" --timeout 10000",
     "test:integration": "cross-env NODE_ENV=test JWT_SECRET=test-jwt-secret-for-local-dev mocha --require tsx \"tests/integration/**/*.test.ts\" --timeout 15000",
     "typecheck": "tsc --noEmit",
-    "build": "echo Build successful"
+    "build": "npx prisma generate && npx prisma db push --skip-generate",
+    "postinstall": "npx prisma generate"
   },
   "keywords": [],
   "author": "",
