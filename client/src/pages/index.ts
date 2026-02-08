@@ -7,3 +7,5 @@ export { AdminProducts } from './AdminProducts';
 export { ProductForm } from './ProductForm';
 export { Addresses } from './Addresses';
 export { Cart } from './Cart';
+export { Orders } from './Orders';
+export { AdminOrders } from './AdminOrders';

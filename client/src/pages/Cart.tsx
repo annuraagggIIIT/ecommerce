@@ -1,15 +1,22 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { cartApi, productsApi } from '../api/client';
-import type { CartItem, Product } from '../types';
+import { Link, useNavigate } from 'react-router-dom';
+import { cartApi, productsApi, usersApi, ordersApi } from '../api/client';
+import { useAuth } from '../context/AuthContext';
+import type { CartItem, Product, Address } from '../types';
 
 interface CartItemWithProduct extends CartItem {
   product: Product;
 }
 
 export function Cart() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [cartItems, setCartItems] = useState<CartItemWithProduct[]>([]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<number | undefined>();
   const [isLoading, setIsLoading] = useState(true);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [showCheckout, setShowCheckout] = useState(false);
   const [error, setError] = useState('');
 
   const fetchCart = async () => {
@@ -35,8 +42,23 @@ export function Cart() {
     }
   };
 
+  const fetchAddresses = async () => {
+    try {
+      const response = await usersApi.listAddresses();
+      setAddresses(response.data);
+      if (user?.defaultShippingAddressId) {
+        setSelectedAddressId(user.defaultShippingAddressId);
+      } else if (response.data.length > 0) {
+        setSelectedAddressId(response.data[0].id);
+      }
+    } catch (err: any) {
+      console.error('Failed to fetch addresses');
+    }
+  };
+
   useEffect(() => {
     fetchCart();
+    fetchAddresses();
   }, []);
 
   const handleQuantityChange = async (itemId: number, newQuantity: number) => {
@@ -70,6 +92,23 @@ export function Cart() {
       (total, item) => total + item.product.price * item.quantity,
       0
     );
+  };
+
+  const handleCheckout = async () => {
+    if (!selectedAddressId) {
+      alert('Please select a shipping address');
+      return;
+    }
+
+    setIsCheckingOut(true);
+    try {
+      await ordersApi.create(selectedAddressId);
+      navigate('/orders');
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to place order');
+    } finally {
+      setIsCheckingOut(false);
+    }
   };
 
   if (isLoading) {
@@ -150,9 +189,64 @@ export function Cart() {
               <span>Total:</span>
               <span className="total-amount">${calculateTotal().toLocaleString()}</span>
             </div>
-            <button className="btn btn-primary btn-large">
-              Proceed to Checkout
-            </button>
+
+            {!showCheckout ? (
+              <button
+                className="btn btn-primary btn-large"
+                onClick={() => setShowCheckout(true)}
+              >
+                Proceed to Checkout
+              </button>
+            ) : (
+              <div className="checkout-section">
+                <h3>Select Shipping Address</h3>
+                {addresses.length === 0 ? (
+                  <div className="no-address">
+                    <p>No addresses found.</p>
+                    <Link to="/addresses" className="btn btn-secondary">
+                      Add Address
+                    </Link>
+                  </div>
+                ) : (
+                  <>
+                    <div className="address-selection">
+                      {addresses.map((address) => (
+                        <label key={address.id} className="address-option">
+                          <input
+                            type="radio"
+                            name="address"
+                            value={address.id}
+                            checked={selectedAddressId === address.id}
+                            onChange={() => setSelectedAddressId(address.id)}
+                          />
+                          <div className="address-details">
+                            <p>{address.lineOne}</p>
+                            {address.lineTwo && <p>{address.lineTwo}</p>}
+                            <p>{address.city}, {address.pinCode}</p>
+                            <p>{address.country}</p>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                    <div className="checkout-actions">
+                      <button
+                        className="btn btn-primary btn-large"
+                        onClick={handleCheckout}
+                        disabled={isCheckingOut || !selectedAddressId}
+                      >
+                        {isCheckingOut ? 'Placing Order...' : 'Place Order'}
+                      </button>
+                      <button
+                        className="btn btn-secondary"
+                        onClick={() => setShowCheckout(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </>
       )}

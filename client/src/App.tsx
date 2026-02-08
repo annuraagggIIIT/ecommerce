@@ -12,6 +12,8 @@ import {
   ProductForm,
   Addresses,
   Cart,
+  Orders,
+  AdminOrders,
 } from './pages';
 import './App.css';
 
@@ -44,6 +46,22 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <Cart />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/orders"
+                  element={
+                    <ProtectedRoute>
+                      <Orders />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin/orders"
+                  element={
+                    <ProtectedRoute requireAdmin>
+                      <AdminOrders />
                     </ProtectedRoute>
                   }
                 />

@@ -70,3 +70,17 @@ export const cartApi = {
   updateQuantity: (id: number, quantity: number) => apiClient.put(`/cart/${id}`, { quantity }),
   removeItem: (id: number) => apiClient.delete(`/cart/${id}`),
 };
+
+// Orders API
+export const ordersApi = {
+  create: (addressId?: number) => apiClient.post('/orders', { addressId }),
+  getAll: () => apiClient.get('/orders'),
+  getById: (id: number) => apiClient.get(`/orders/${id}`),
+  cancel: (id: number) => apiClient.put(`/orders/${id}/cancel`),
+};
+
+// Admin Orders API
+export const adminOrdersApi = {
+  getAll: (status?: string) => apiClient.get('/orders/admin/all', { params: { status } }),
+  updateStatus: (id: number, status: string) => apiClient.put(`/orders/admin/${id}/status`, { status }),
+};
