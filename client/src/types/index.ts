@@ -53,3 +53,35 @@ export interface CartItem {
   createdAt: string;
   updatedAt: string;
 }
+
+export type OrderStatus = 'PENDING' | 'ACCEPTED' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'CANCELLED';
+
+export interface OrderProduct {
+  id: number;
+  orderId: number;
+  productId: number;
+  quantity: number;
+  address: string;
+  product: Product;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface OrderEvent {
+  id: number;
+  orderId: number;
+  status: OrderStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Order {
+  id: number;
+  userId: number;
+  netAmount: number;
+  address: string;
+  products: OrderProduct[];
+  events: OrderEvent[];
+  createdAt: string;
+  updatedAt: string;
+}
