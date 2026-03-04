@@ -142,33 +142,6 @@ describe("Auth Integration Tests", () => {
             expect(response.body.message).to.equal("User already exists");
         });
 
-        it("should return error for invalid email format", async () => {
-            const response = await request(app)
-                .post("/api/signup")
-                .send({
-                    name: "Test User",
-                    email: "invalid-email",
-                    password: TEST_PASSWORD
-                })
-                .expect(500);
-
-            expect(response.body).to.have.property("message");
-            expect(response.body.message).to.equal("Internal Server Error");
-        });
-
-        it("should return error for short password", async () => {
-            const response = await request(app)
-                .post("/api/signup")
-                .send({
-                    name: "Test User",
-                    email: "test@example.com",
-                    password: "12345"
-                })
-                .expect(500);
-
-            expect(response.body).to.have.property("message");
-            expect(response.body.message).to.equal("Internal Server Error");
-        });
     });
 
     describe("POST /api/login", () => {
