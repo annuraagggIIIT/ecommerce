@@ -84,3 +84,14 @@ export const adminOrdersApi = {
   getAll: (status?: string) => apiClient.get('/orders/admin/all', { params: { status } }),
   updateStatus: (id: number, status: string) => apiClient.put(`/orders/admin/${id}/status`, { status }),
 };
+
+// Payments API
+export const paymentsApi = {
+  createOrder: () => apiClient.post('/payments/create-order'),
+  verify: (data: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+    addressId?: number;
+  }) => apiClient.post('/payments/verify', data),
+};

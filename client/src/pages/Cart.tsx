@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { cartApi, productsApi, usersApi, ordersApi } from '../api/client';
+import { cartApi, productsApi, usersApi, paymentsApi } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import type { CartItem, Product, Address } from '../types';
 
@@ -94,6 +94,21 @@ export function Cart() {
     );
   };
 
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (document.getElementById('razorpay-script')) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.id = 'razorpay-script';
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
   const handleCheckout = async () => {
     if (!selectedAddressId) {
       alert('Please select a shipping address');
@@ -102,11 +117,48 @@ export function Cart() {
 
     setIsCheckingOut(true);
     try {
-      await ordersApi.create(selectedAddressId);
-      navigate('/orders');
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        alert('Failed to load payment gateway. Check your internet connection.');
+        return;
+      }
+
+      const { data } = await paymentsApi.createOrder();
+
+      const options: RazorpayOptions = {
+        key: data.key,
+        amount: data.amount,
+        currency: data.currency,
+        name: 'My Store',
+        description: 'Order Payment',
+        order_id: data.orderId,
+        prefill: {
+          name: user?.name,
+          email: user?.email,
+        },
+        handler: async (response) => {
+          try {
+            await paymentsApi.verify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              addressId: selectedAddressId,
+            });
+            navigate('/orders');
+          } catch {
+            alert('Payment verification failed. Contact support.');
+          }
+        },
+        theme: { color: '#2563eb' },
+        modal: {
+          ondismiss: () => setIsCheckingOut(false),
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to place order');
-    } finally {
+      alert(err.response?.data?.message || 'Failed to initiate payment');
       setIsCheckingOut(false);
     }
   };
@@ -234,7 +286,7 @@ export function Cart() {
                         onClick={handleCheckout}
                         disabled={isCheckingOut || !selectedAddressId}
                       >
-                        {isCheckingOut ? 'Placing Order...' : 'Place Order'}
+                        {isCheckingOut ? 'Opening Payment...' : 'Pay Now'}
                       </button>
                       <button
                         className="btn btn-secondary"

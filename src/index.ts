@@ -8,6 +8,7 @@ import productsRoutes from './routes/product.ts';
 import userRoutes from './routes/users.ts';
 import cartRoutes from './routes/cart.ts';
 import orderRoutes from './routes/order.ts';
+import paymentRoutes from './routes/payment.ts';
 export { prismaClient } from './db/prisma.ts';
 
 const app: Express = express();
@@ -19,6 +20,7 @@ app.use("/api/products", productsRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/payments", paymentRoutes);
 app.use(errorMiddleware)
 
 

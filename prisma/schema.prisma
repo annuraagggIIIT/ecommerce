@@ -82,13 +82,15 @@ model CartItem {
 }
 
 model Order {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  netAmount Decimal
-  address   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  user             User     @relation(fields: [userId], references: [id])
+  netAmount        Decimal
+  address          String
+  razorpayOrderId  String?
+  paymentId        String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   products OrderProduct[]
   events   OrderEvent[]
