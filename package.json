@@ -16,7 +16,8 @@
     "test:unit": "cross-env NODE_ENV=test JWT_SECRET=test-jwt-secret-for-local-dev mocha --require tsx \"tests/unit/**/*.test.ts\" --timeout 10000",
     "test:integration": "cross-env NODE_ENV=test JWT_SECRET=test-jwt-secret-for-local-dev mocha --require tsx \"tests/integration/**/*.test.ts\" --timeout 15000",
     "typecheck": "tsc --noEmit && cd client && tsc -p tsconfig.app.json",
-    "build": "npx prisma generate && npx prisma db push",
+    "build": "npx prisma generate",
+    "db:push": "npx prisma db push",
     "postinstall": "npx prisma generate && npm run client:install"
   },
   "keywords": [],
@@ -46,8 +47,9 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^9.3.4",
     "@prisma/adapter-pg": "^7.3.0",
-    "@prisma/client": "^7.3.0",
+    "@prisma/client": "^5.22.0",
     "@prisma/extension-accelerate": "^3.0.1",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
@@ -55,7 +57,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.11.3",
-    "prisma": "^7.3.0",
+    "prisma": "^5.22.0",
     "razorpay": "^2.9.6",
     "ts-node": "^10.9.2",
     "tsx": "^4.21.0",

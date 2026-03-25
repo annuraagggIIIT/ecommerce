@@ -1,11 +1,7 @@
 import { expect } from "chai";
 import sinon, { type SinonSandbox, type SinonStub } from "sinon";
-import type { Request, Response, NextFunction } from "express";
-import * as bcrypt from "bcrypt";
+import type { Request, Response } from "express";
 import esmock from "esmock";
-
-const TEST_PASSWORD = process.env.TEST_PASSWORD || "testpassword";
-const TEST_JWT_SECRET = process.env.TEST_JWT_SECRET || process.env.JWT_SECRET || "test-jwt-secret-for-local-dev";
 
 const createMockRequest = (overrides: any = {}): Partial<Request> => ({
     body: {},
@@ -23,41 +19,24 @@ const createMockResponse = (): Partial<Response> => {
     return res;
 };
 
-const createMockNext = (): SinonStub => sinon.stub();
-
 describe("Auth Controller Tests", () => {
     let sandbox: SinonSandbox;
     let authController: any;
-    let mockPrismaClient: any;
+    let mockAuthService: any;
 
-    const mockUser = {
-        id: 1,
-        name: "Test User",
-        email: "test@example.com",
-        password: bcrypt.hashSync(TEST_PASSWORD, 10),
-        role: "USER",
-        createdAt: new Date(),
-        updatedAt: new Date()
-    };
+    const mockUser = { id: 1, name: "Test User", email: "test@example.com", role: "USER" };
+    const mockToken = "mock.jwt.token";
 
     beforeEach(async () => {
         sandbox = sinon.createSandbox();
 
-        mockPrismaClient = {
-            user: {
-                findFirst: sandbox.stub(),
-                create: sandbox.stub()
-            }
+        mockAuthService = {
+            signupUser: sandbox.stub(),
+            loginUser: sandbox.stub()
         };
 
-        // Use esmock to mock the prisma module
         authController = await esmock("../../../src/controllers/auth.ts", {
-            "../../../src/db/prisma.ts": {
-                prismaClient: mockPrismaClient
-            },
-            "../../../src/secrets.ts": {
-                JWT_SECRET: TEST_JWT_SECRET
-            }
+            "../../../src/services/auth.service.ts": mockAuthService
         });
     });
 
@@ -66,63 +45,50 @@ describe("Auth Controller Tests", () => {
     });
 
     describe("signup", () => {
-        it("should create a new user successfully", async () => {
+        it("should create a new user and return json", async () => {
             const req = createMockRequest({
-                body: {
-                    name: "New User",
-                    email: "new@example.com",
-                    password: TEST_PASSWORD,
-                    role: "USER"
-                }
+                body: { name: "New User", email: "new@example.com", password: "testpassword", role: "USER" }
             }) as Request;
             const res = createMockResponse() as Response;
-            const next = createMockNext();
 
-            mockPrismaClient.user.findFirst.resolves(null);
-            mockPrismaClient.user.create.resolves({
-                id: 2,
-                name: "New User",
-                email: "new@example.com",
-                role: "USER"
-            });
+            mockAuthService.signupUser.resolves(mockUser);
 
-            await authController.signup(req, res, next);
+            await authController.signup(req, res);
 
             expect((res.json as SinonStub).calledOnce).to.be.true;
+            expect((res.json as SinonStub).firstCall.args[0]).to.deep.equal(mockUser);
         });
 
-        it("should call next with BadRequestException when user exists", async () => {
+        it("should propagate BadRequestException when user already exists", async () => {
             const req = createMockRequest({
-                body: {
-                    name: "Test User",
-                    email: "test@example.com",
-                    password: TEST_PASSWORD,
-                    role: "USER"
-                }
+                body: { name: "Test", email: "test@example.com", password: "testpassword", role: "USER" }
             }) as Request;
             const res = createMockResponse() as Response;
-            const next = createMockNext();
 
-            mockPrismaClient.user.findFirst.resolves(mockUser);
-            mockPrismaClient.user.create.resolves(mockUser);
+            const { BadRequestException } = await import("../../../src/exceptions/bad-request.ts");
+            const { ErrorCode } = await import("../../../src/exceptions/root.ts");
+            mockAuthService.signupUser.rejects(
+                new BadRequestException("User already exists", ErrorCode.USER_ALREADY_EXISTS)
+            );
 
-            await authController.signup(req, res, next);
-
-            expect(next.calledOnce).to.be.true;
+            try {
+                await authController.signup(req, res);
+                expect.fail("Should have thrown");
+            } catch (error: any) {
+                expect(error.statusCode).to.equal(400);
+                expect(error.message).to.equal("User already exists");
+            }
         });
     });
 
     describe("login", () => {
-        it("should login successfully with valid credentials", async () => {
+        it("should return user and token on successful login", async () => {
             const req = createMockRequest({
-                body: {
-                    email: "test@example.com",
-                    password: TEST_PASSWORD
-                }
+                body: { email: "test@example.com", password: "testpassword" }
             }) as Request;
             const res = createMockResponse() as Response;
 
-            mockPrismaClient.user.findFirst.resolves(mockUser);
+            mockAuthService.loginUser.resolves({ user: mockUser, token: mockToken });
 
             await authController.login(req, res);
 
@@ -132,16 +98,17 @@ describe("Auth Controller Tests", () => {
             expect(response).to.have.property("token");
         });
 
-        it("should throw NotFoundException when user not found", async () => {
+        it("should propagate NotFoundException when user not found", async () => {
             const req = createMockRequest({
-                body: {
-                    email: "notfound@example.com",
-                    password: TEST_PASSWORD
-                }
+                body: { email: "notfound@example.com", password: "testpassword" }
             }) as Request;
             const res = createMockResponse() as Response;
 
-            mockPrismaClient.user.findFirst.resolves(null);
+            const { NotFoundException } = await import("../../../src/exceptions/not-found.ts");
+            const { ErrorCode } = await import("../../../src/exceptions/root.ts");
+            mockAuthService.loginUser.rejects(
+                new NotFoundException("User not found", ErrorCode.USER_NOT_FOUND)
+            );
 
             try {
                 await authController.login(req, res);
@@ -151,16 +118,17 @@ describe("Auth Controller Tests", () => {
             }
         });
 
-        it("should throw BadRequestException for incorrect password", async () => {
+        it("should propagate BadRequestException for incorrect password", async () => {
             const req = createMockRequest({
-                body: {
-                    email: "test@example.com",
-                    password: "wrongpassword"
-                }
+                body: { email: "test@example.com", password: "wrongpassword" }
             }) as Request;
             const res = createMockResponse() as Response;
 
-            mockPrismaClient.user.findFirst.resolves(mockUser);
+            const { BadRequestException } = await import("../../../src/exceptions/bad-request.ts");
+            const { ErrorCode } = await import("../../../src/exceptions/root.ts");
+            mockAuthService.loginUser.rejects(
+                new BadRequestException("Invalid password", ErrorCode.INCORRECT_PASSWORD)
+            );
 
             try {
                 await authController.login(req, res);
@@ -173,9 +141,7 @@ describe("Auth Controller Tests", () => {
 
     describe("me", () => {
         it("should return user from request object", async () => {
-            const req = createMockRequest({
-                user: mockUser
-            }) as Request;
+            const req = createMockRequest({ user: mockUser }) as Request;
             const res = createMockResponse() as Response;
 
             await authController.me(req, res);

@@ -22,27 +22,12 @@ const TEST_JWT_SECRET = process.env.TEST_JWT_SECRET || process.env.JWT_SECRET ||
 describe("Product Integration Tests", () => {
     let sandbox: SinonSandbox;
     let app: Express;
+    let mockProductService: any;
     let mockPrismaClient: any;
     const JWT_SECRET = TEST_JWT_SECRET;
 
-    const mockAdminUser = {
-        id: 1,
-        name: "Admin User",
-        email: "admin@example.com",
-        role: "ADMIN",
-        createdAt: new Date(),
-        updatedAt: new Date()
-    };
-
-    const mockRegularUser = {
-        id: 2,
-        name: "Regular User",
-        email: "user@example.com",
-        role: "USER",
-        createdAt: new Date(),
-        updatedAt: new Date()
-    };
-
+    const mockAdminUser = { id: 1, name: "Admin User", email: "admin@example.com", role: "ADMIN" };
+    const mockRegularUser = { id: 2, name: "Regular User", email: "user@example.com", role: "USER" };
     const mockProduct = {
         id: 1,
         name: "Test Product",
@@ -56,23 +41,23 @@ describe("Product Integration Tests", () => {
     beforeEach(() => {
         sandbox = sinon.createSandbox();
 
+        // Mock the service layer
+        mockProductService = {
+            createProduct: sandbox.stub(),
+            updateProduct: sandbox.stub(),
+            deleteProduct: sandbox.stub(),
+            listProducts: sandbox.stub(),
+            getProductById: sandbox.stub()
+        };
+
+        // Mock prisma for auth middleware simulation
         mockPrismaClient = {
-            user: {
-                findFirst: sandbox.stub()
-            },
-            product: {
-                create: sandbox.stub(),
-                update: sandbox.stub(),
-                delete: sandbox.stub(),
-                findMany: sandbox.stub(),
-                findFirst: sandbox.stub()
-            }
+            user: { findFirst: sandbox.stub() }
         };
 
         app = express();
         app.use(express.json());
 
-        // Auth middleware simulation
         const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
             const token = req.headers.authorization;
             if (!token) {
@@ -88,71 +73,42 @@ describe("Product Integration Tests", () => {
                 }
                 req.user = user;
                 next();
-            } catch (error) {
+            } catch {
                 next(new UnauthorizedException("Invalid token", ErrorCode.UNAUTHORIZED));
             }
         };
 
-        // Admin middleware simulation
-        const adminMiddleware = async (req: Request, res: Response, next: NextFunction) => {
-            const user = req.user;
-            if (user && user.role === "ADMIN") {
+        const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
+            if (req.user?.role === "ADMIN") {
                 next();
             } else {
                 next(new UnauthorizedException("Unauthorized: Admins only", ErrorCode.UNAUTHORIZED));
             }
         };
 
-        // Product routes
+        // Routes delegate to mock service (mirrors controller → service pattern)
         app.post("/api/products", authMiddleware, adminMiddleware, errorHandler(async (req: Request, res: Response) => {
-            const product = await mockPrismaClient.product.create({
-                data: {
-                    ...req.body,
-                    tags: req.body.tags.join(",")
-                }
-            });
+            const product = await mockProductService.createProduct(req.body);
             res.json(product);
         }));
 
         app.put("/api/products/:id", authMiddleware, adminMiddleware, errorHandler(async (req: Request, res: Response) => {
-            try {
-                const product = req.body;
-                if (product.tags) {
-                    product.tags = product.tags.join(",");
-                }
-                const updatedProduct = await mockPrismaClient.product.update({
-                    where: { id: +req.params.id },
-                    data: product
-                });
-                res.json(updatedProduct);
-            } catch (err) {
-                throw new NotFoundException("Product not found", ErrorCode.PRODUCT_NOT_FOUND);
-            }
+            const product = await mockProductService.updateProduct(+req.params.id, req.body);
+            res.json(product);
         }));
 
         app.delete("/api/products/:id", authMiddleware, adminMiddleware, errorHandler(async (req: Request, res: Response) => {
-            try {
-                const deletedProduct = await mockPrismaClient.product.delete({
-                    where: { id: +req.params.id }
-                });
-                res.json(deletedProduct);
-            } catch (err) {
-                throw new NotFoundException("Product not found", ErrorCode.PRODUCT_NOT_FOUND);
-            }
+            const product = await mockProductService.deleteProduct(+req.params.id);
+            res.json(product);
         }));
 
         app.get("/api/products", errorHandler(async (req: Request, res: Response) => {
-            const products = await mockPrismaClient.product.findMany();
+            const products = await mockProductService.listProducts();
             res.json(products);
         }));
 
         app.get("/api/products/:id", errorHandler(async (req: Request, res: Response) => {
-            const product = await mockPrismaClient.product.findFirst({
-                where: { id: +req.params.id }
-            });
-            if (!product) {
-                throw new NotFoundException("Product not found", ErrorCode.PRODUCT_NOT_FOUND);
-            }
+            const product = await mockProductService.getProductById(+req.params.id);
             res.json(product);
         }));
 
@@ -167,17 +123,12 @@ describe("Product Integration Tests", () => {
         it("should create product when admin is authenticated", async () => {
             const token = jwt.sign({ userId: 1 }, JWT_SECRET);
             mockPrismaClient.user.findFirst.resolves(mockAdminUser);
-            mockPrismaClient.product.create.resolves(mockProduct);
+            mockProductService.createProduct.resolves(mockProduct);
 
             const response = await request(app)
                 .post("/api/products")
                 .set("Authorization", token)
-                .send({
-                    name: "Test Product",
-                    description: "A test product",
-                    price: 99.99,
-                    tags: ["electronics", "gadget"]
-                })
+                .send({ name: "Test Product", description: "A test product", price: 99.99, tags: ["electronics", "gadget"] })
                 .expect(200);
 
             expect(response.body).to.have.property("id");
@@ -187,14 +138,8 @@ describe("Product Integration Tests", () => {
         it("should return 401 when no token provided", async () => {
             const response = await request(app)
                 .post("/api/products")
-                .send({
-                    name: "Test Product",
-                    description: "A test product",
-                    price: 99.99,
-                    tags: ["electronics"]
-                })
+                .send({ name: "Test Product", tags: ["electronics"] })
                 .expect(401);
-
             expect(response.body.message).to.equal("No token provided");
         });
 
@@ -205,14 +150,8 @@ describe("Product Integration Tests", () => {
             const response = await request(app)
                 .post("/api/products")
                 .set("Authorization", token)
-                .send({
-                    name: "Test Product",
-                    description: "A test product",
-                    price: 99.99,
-                    tags: ["electronics"]
-                })
+                .send({ name: "Test Product", tags: ["electronics"] })
                 .expect(401);
-
             expect(response.body.message).to.equal("Unauthorized: Admins only");
         });
     });
@@ -221,15 +160,12 @@ describe("Product Integration Tests", () => {
         it("should update product when admin is authenticated", async () => {
             const token = jwt.sign({ userId: 1 }, JWT_SECRET);
             mockPrismaClient.user.findFirst.resolves(mockAdminUser);
-            mockPrismaClient.product.update.resolves({ ...mockProduct, name: "Updated Product" });
+            mockProductService.updateProduct.resolves({ ...mockProduct, name: "Updated Product" });
 
             const response = await request(app)
                 .put("/api/products/1")
                 .set("Authorization", token)
-                .send({
-                    name: "Updated Product",
-                    tags: ["updated"]
-                })
+                .send({ name: "Updated Product", tags: ["updated"] })
                 .expect(200);
 
             expect(response.body.name).to.equal("Updated Product");
@@ -238,7 +174,9 @@ describe("Product Integration Tests", () => {
         it("should return 404 when product not found", async () => {
             const token = jwt.sign({ userId: 1 }, JWT_SECRET);
             mockPrismaClient.user.findFirst.resolves(mockAdminUser);
-            mockPrismaClient.product.update.rejects(new Error("Not found"));
+            mockProductService.updateProduct.rejects(
+                new NotFoundException("Product not found", ErrorCode.PRODUCT_NOT_FOUND)
+            );
 
             const response = await request(app)
                 .put("/api/products/999")
@@ -254,7 +192,7 @@ describe("Product Integration Tests", () => {
         it("should delete product when admin is authenticated", async () => {
             const token = jwt.sign({ userId: 1 }, JWT_SECRET);
             mockPrismaClient.user.findFirst.resolves(mockAdminUser);
-            mockPrismaClient.product.delete.resolves(mockProduct);
+            mockProductService.deleteProduct.resolves(mockProduct);
 
             const response = await request(app)
                 .delete("/api/products/1")
@@ -267,7 +205,9 @@ describe("Product Integration Tests", () => {
         it("should return 404 when product not found", async () => {
             const token = jwt.sign({ userId: 1 }, JWT_SECRET);
             mockPrismaClient.user.findFirst.resolves(mockAdminUser);
-            mockPrismaClient.product.delete.rejects(new Error("Not found"));
+            mockProductService.deleteProduct.rejects(
+                new NotFoundException("Product not found", ErrorCode.PRODUCT_NOT_FOUND)
+            );
 
             const response = await request(app)
                 .delete("/api/products/999")
@@ -280,46 +220,39 @@ describe("Product Integration Tests", () => {
 
     describe("GET /api/products", () => {
         it("should return all products", async () => {
-            mockPrismaClient.product.findMany.resolves([mockProduct]);
+            mockProductService.listProducts.resolves([mockProduct]);
 
-            const response = await request(app)
-                .get("/api/products")
-                .expect(200);
+            const response = await request(app).get("/api/products").expect(200);
 
             expect(response.body).to.be.an("array");
             expect(response.body.length).to.equal(1);
         });
 
         it("should return empty array when no products", async () => {
-            mockPrismaClient.product.findMany.resolves([]);
+            mockProductService.listProducts.resolves([]);
 
-            const response = await request(app)
-                .get("/api/products")
-                .expect(200);
+            const response = await request(app).get("/api/products").expect(200);
 
-            expect(response.body).to.be.an("array");
-            expect(response.body.length).to.equal(0);
+            expect(response.body).to.be.an("array").that.is.empty;
         });
     });
 
     describe("GET /api/products/:id", () => {
         it("should return product by id", async () => {
-            mockPrismaClient.product.findFirst.resolves(mockProduct);
+            mockProductService.getProductById.resolves(mockProduct);
 
-            const response = await request(app)
-                .get("/api/products/1")
-                .expect(200);
+            const response = await request(app).get("/api/products/1").expect(200);
 
             expect(response.body.id).to.equal(1);
             expect(response.body.name).to.equal("Test Product");
         });
 
         it("should return 404 when product not found", async () => {
-            mockPrismaClient.product.findFirst.resolves(null);
+            mockProductService.getProductById.rejects(
+                new NotFoundException("Product not found", ErrorCode.PRODUCT_NOT_FOUND)
+            );
 
-            const response = await request(app)
-                .get("/api/products/999")
-                .expect(404);
+            const response = await request(app).get("/api/products/999").expect(404);
 
             expect(response.body.message).to.equal("Product not found");
         });

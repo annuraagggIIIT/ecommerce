@@ -22,7 +22,7 @@ const createMockResponse = (): Partial<Response> => {
 describe("Product Controller Tests", () => {
     let sandbox: SinonSandbox;
     let productController: any;
-    let mockPrismaClient: any;
+    let mockProductService: any;
 
     const mockProduct = {
         id: 1,
@@ -37,20 +37,16 @@ describe("Product Controller Tests", () => {
     beforeEach(async () => {
         sandbox = sinon.createSandbox();
 
-        mockPrismaClient = {
-            product: {
-                create: sandbox.stub(),
-                update: sandbox.stub(),
-                delete: sandbox.stub(),
-                findMany: sandbox.stub(),
-                findFirst: sandbox.stub()
-            }
+        mockProductService = {
+            createProduct: sandbox.stub(),
+            updateProduct: sandbox.stub(),
+            deleteProduct: sandbox.stub(),
+            listProducts: sandbox.stub(),
+            getProductById: sandbox.stub()
         };
 
         productController = await esmock("../../../src/controllers/product.ts", {
-            "../../../src/db/prisma.ts": {
-                prismaClient: mockPrismaClient
-            }
+            "../../../src/services/product.service.ts": mockProductService
         });
     });
 
@@ -59,67 +55,47 @@ describe("Product Controller Tests", () => {
     });
 
     describe("createProduct", () => {
-        it("should create a product successfully", async () => {
+        it("should create a product and return json", async () => {
             const req = createMockRequest({
-                body: {
-                    name: "Test Product",
-                    description: "A test product",
-                    price: 99.99,
-                    tags: ["electronics", "gadget"]
-                }
+                body: { name: "Test Product", description: "A test product", price: 99.99, tags: ["electronics", "gadget"] }
             }) as Request;
             const res = createMockResponse() as Response;
 
-            mockPrismaClient.product.create.resolves(mockProduct);
+            mockProductService.createProduct.resolves(mockProduct);
 
             await productController.createProduct(req, res);
 
             expect((res.json as SinonStub).calledOnce).to.be.true;
+            expect((res.json as SinonStub).firstCall.args[0]).to.deep.equal(mockProduct);
         });
     });
 
     describe("updateProduct", () => {
-        it("should update a product with tags successfully", async () => {
+        it("should update a product and return json", async () => {
             const req = createMockRequest({
                 params: { id: "1" },
-                body: {
-                    name: "Updated Product",
-                    tags: ["updated"]
-                }
+                body: { name: "Updated Product", tags: ["updated"] }
             }) as Request;
             const res = createMockResponse() as Response;
 
-            mockPrismaClient.product.update.resolves({ ...mockProduct, name: "Updated Product" });
+            const updated = { ...mockProduct, name: "Updated Product" };
+            mockProductService.updateProduct.resolves(updated);
 
             await productController.updateProduct(req, res);
 
             expect((res.json as SinonStub).calledOnce).to.be.true;
+            expect(mockProductService.updateProduct.calledWith(1, req.body)).to.be.true;
         });
 
-        it("should update product without tags", async () => {
-            const req = createMockRequest({
-                params: { id: "1" },
-                body: {
-                    name: "Updated Product"
-                }
-            }) as Request;
+        it("should propagate NotFoundException when product not found", async () => {
+            const req = createMockRequest({ params: { id: "999" }, body: { name: "Updated" } }) as Request;
             const res = createMockResponse() as Response;
 
-            mockPrismaClient.product.update.resolves({ ...mockProduct, name: "Updated Product" });
-
-            await productController.updateProduct(req, res);
-
-            expect((res.json as SinonStub).calledOnce).to.be.true;
-        });
-
-        it("should throw NotFoundException when product not found", async () => {
-            const req = createMockRequest({
-                params: { id: "999" },
-                body: { name: "Updated" }
-            }) as Request;
-            const res = createMockResponse() as Response;
-
-            mockPrismaClient.product.update.rejects(new Error("Not found"));
+            const { NotFoundException } = await import("../../../src/exceptions/not-found.ts");
+            const { ErrorCode } = await import("../../../src/exceptions/root.ts");
+            mockProductService.updateProduct.rejects(
+                new NotFoundException("Product not found", ErrorCode.PRODUCT_NOT_FOUND)
+            );
 
             try {
                 await productController.updateProduct(req, res);
@@ -131,28 +107,27 @@ describe("Product Controller Tests", () => {
     });
 
     describe("deleteProduct", () => {
-        it("should delete a product successfully", async () => {
-            const req = createMockRequest({
-                params: { id: "1" },
-                body: {}
-            }) as Request;
+        it("should delete a product and return json", async () => {
+            const req = createMockRequest({ params: { id: "1" } }) as Request;
             const res = createMockResponse() as Response;
 
-            mockPrismaClient.product.delete.resolves(mockProduct);
+            mockProductService.deleteProduct.resolves(mockProduct);
 
             await productController.deleteProduct(req, res);
 
             expect((res.json as SinonStub).calledOnce).to.be.true;
+            expect(mockProductService.deleteProduct.calledWith(1)).to.be.true;
         });
 
-        it("should throw NotFoundException when product not found", async () => {
-            const req = createMockRequest({
-                params: { id: "999" },
-                body: {}
-            }) as Request;
+        it("should propagate NotFoundException when product not found", async () => {
+            const req = createMockRequest({ params: { id: "999" } }) as Request;
             const res = createMockResponse() as Response;
 
-            mockPrismaClient.product.delete.rejects(new Error("Not found"));
+            const { NotFoundException } = await import("../../../src/exceptions/not-found.ts");
+            const { ErrorCode } = await import("../../../src/exceptions/root.ts");
+            mockProductService.deleteProduct.rejects(
+                new NotFoundException("Product not found", ErrorCode.PRODUCT_NOT_FOUND)
+            );
 
             try {
                 await productController.deleteProduct(req, res);
@@ -164,69 +139,41 @@ describe("Product Controller Tests", () => {
     });
 
     describe("listProducts", () => {
-        it("should list all products successfully", async () => {
+        it("should return all products from service", async () => {
             const req = createMockRequest({}) as Request;
             const res = createMockResponse() as Response;
 
-            mockPrismaClient.product.findMany.resolves([mockProduct]);
+            mockProductService.listProducts.resolves([mockProduct]);
 
             await productController.listProducts(req, res);
 
             expect((res.json as SinonStub).calledOnce).to.be.true;
-        });
-
-        it("should throw NotFoundException on error", async () => {
-            const req = createMockRequest({}) as Request;
-            const res = createMockResponse() as Response;
-
-            mockPrismaClient.product.findMany.rejects(new Error("Database error"));
-
-            try {
-                await productController.listProducts(req, res);
-                expect.fail("Should have thrown");
-            } catch (error: any) {
-                expect(error.statusCode).to.equal(404);
-            }
+            expect((res.json as SinonStub).firstCall.args[0]).to.deep.equal([mockProduct]);
         });
     });
 
     describe("getProductById", () => {
-        it("should get a product by id successfully", async () => {
-            const req = createMockRequest({
-                params: { id: "1" }
-            }) as Request;
+        it("should return a product by id", async () => {
+            const req = createMockRequest({ params: { id: "1" } }) as Request;
             const res = createMockResponse() as Response;
 
-            mockPrismaClient.product.findFirst.resolves(mockProduct);
+            mockProductService.getProductById.resolves(mockProduct);
 
             await productController.getProductById(req, res);
 
             expect((res.json as SinonStub).calledOnce).to.be.true;
+            expect(mockProductService.getProductById.calledWith(1)).to.be.true;
         });
 
-        it("should throw NotFoundException when product is null", async () => {
-            const req = createMockRequest({
-                params: { id: "999" }
-            }) as Request;
+        it("should propagate NotFoundException when product not found", async () => {
+            const req = createMockRequest({ params: { id: "999" } }) as Request;
             const res = createMockResponse() as Response;
 
-            mockPrismaClient.product.findFirst.resolves(null);
-
-            try {
-                await productController.getProductById(req, res);
-                expect.fail("Should have thrown");
-            } catch (error: any) {
-                expect(error.statusCode).to.equal(404);
-            }
-        });
-
-        it("should throw NotFoundException on database error", async () => {
-            const req = createMockRequest({
-                params: { id: "1" }
-            }) as Request;
-            const res = createMockResponse() as Response;
-
-            mockPrismaClient.product.findFirst.rejects(new Error("Database error"));
+            const { NotFoundException } = await import("../../../src/exceptions/not-found.ts");
+            const { ErrorCode } = await import("../../../src/exceptions/root.ts");
+            mockProductService.getProductById.rejects(
+                new NotFoundException("Product not found", ErrorCode.PRODUCT_NOT_FOUND)
+            );
 
             try {
                 await productController.getProductById(req, res);
