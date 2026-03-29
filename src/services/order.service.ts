@@ -1,6 +1,8 @@
 import { prismaClient } from "../db/prisma.ts";
 import { NotFoundException } from "../exceptions/not-found.ts";
 import { ErrorCode } from "../exceptions/root.ts";
+import { TALLY_STATUS } from "../integrations/tally/tally.status.ts";
+import { enqueueOrderSync } from "../integrations/tally/index.ts";
 
 export const createOrder = async (userId: number, addressId?: number) => {
     const cartItems = await prismaClient.cartItem.findMany({
@@ -126,6 +128,15 @@ export const updateOrderStatus = async (orderId: number, status: string) => {
     await prismaClient.orderEvent.create({
         data: { order: { connect: { id: orderId } }, status: status as any }
     });
+    await prismaClient.order.update({
+        where: { id: orderId },
+        data: { tallyStatus: TALLY_STATUS.ORDER_UPDATED },
+    });
+    try {
+        await enqueueOrderSync(orderId);
+    } catch {
+        // Queue failure must not break order status update
+    }
 
     return prismaClient.order.findFirst({
         where: { id: orderId },

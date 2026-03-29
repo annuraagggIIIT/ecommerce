@@ -5,6 +5,8 @@ import { RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET } from "../secrets.ts";
 import { NotFoundException } from "../exceptions/not-found.ts";
 import { InternalException } from "../exceptions/internal-exception.ts";
 import { ErrorCode } from "../exceptions/root.ts";
+import { TALLY_STATUS } from "../integrations/tally/tally.status.ts";
+import { enqueueOrderSync } from "../integrations/tally/index.ts";
 
 const razorpay = new Razorpay({ key_id: RAZORPAY_KEY_ID, key_secret: RAZORPAY_KEY_SECRET });
 
@@ -82,6 +84,7 @@ export const verifyAndCreateOrder = async (
             address: formattedAddress,
             razorpayOrderId: razorpay_order_id,
             paymentId: razorpay_payment_id,
+            tallyStatus: TALLY_STATUS.ORDER_NEW,
             products: {
                 create: cartItems.map((cart) => ({
                     product: { connect: { id: cart.productId } },
@@ -95,5 +98,10 @@ export const verifyAndCreateOrder = async (
 
     await prismaClient.orderEvent.create({ data: { order: { connect: { id: order.id } } } });
     await prismaClient.cartItem.deleteMany({ where: { userId } });
+    try {
+        await enqueueOrderSync(order.id);
+    } catch {
+        // Queue failure must not break payment verification
+    }
     return order;
 };

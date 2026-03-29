@@ -28,6 +28,8 @@ model User {
   role                     Role     @default(USER)
   defaultShippingAddressId Int?
   defaultBillingAddressId  Int?
+  tallyStatus              Int?     // 1000=new 1001=updated 1002=synced 1009=failed
+  lastTallySyncAt          DateTime?
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
 
@@ -60,7 +62,9 @@ model Product {
   price       Decimal
   tags        String
   image       String?
-  createdAt   DateTime @default(now())
+  tallyStatus     Int?     // 2000=new 2001=updated 2002=synced 2009=failed
+  lastTallySyncAt DateTime?
+  createdAt       DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   cartItems CartItem[]
@@ -90,6 +94,8 @@ model Order {
   address          String
   razorpayOrderId  String?
   paymentId        String?
+  tallyStatus      Int?     // 3000=new 3001=updated 3002=synced 3009=failed
+  lastTallySyncAt  DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

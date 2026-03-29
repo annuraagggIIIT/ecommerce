@@ -9,6 +9,8 @@ import userRoutes from './routes/users.ts';
 import cartRoutes from './routes/cart.ts';
 import orderRoutes from './routes/order.ts';
 import paymentRoutes from './routes/payment.ts';
+import tallyRoutes from './routes/tally.ts';
+import { startUserWorker, startProductWorker, startOrderWorker, startTallyScheduler } from './integrations/tally/index.ts';
 export { prismaClient } from './db/prisma.ts';
 
 const app: Express = express();
@@ -21,8 +23,14 @@ app.use("/api/users", userRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/tally", tallyRoutes);
 app.use(errorMiddleware)
 
+
+startUserWorker();
+startProductWorker();
+startOrderWorker();
+startTallyScheduler();
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

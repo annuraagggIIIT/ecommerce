@@ -1,6 +1,8 @@
 import { prismaClient } from "../db/prisma.ts";
 import { NotFoundException } from "../exceptions/not-found.ts";
 import { ErrorCode } from "../exceptions/root.ts";
+import { TALLY_STATUS } from "../integrations/tally/tally.status.ts";
+import { enqueueUserSync } from "../integrations/tally/index.ts";
 
 export const addAddress = async (userId: number, data: any) => {
     return prismaClient.address.create({ data: { ...data, userId } });
@@ -44,5 +46,14 @@ export const updateUser = async (
             throw new NotFoundException("Address does not belong to user", ErrorCode.ADDRESS_DOES_NOT_BELONG_TO_USER);
         }
     }
-    return prismaClient.user.update({ where: { id: userId }, data });
+    const user = await prismaClient.user.update({
+        where: { id: userId },
+        data: { ...data, tallyStatus: TALLY_STATUS.USER_UPDATED },
+    });
+    try {
+        await enqueueUserSync(user.id, "Alter");
+    } catch {
+        // Queue failure must not break user update
+    }
+    return user;
 };
