@@ -13,6 +13,7 @@ import tallyRoutes from './routes/tally.ts';
 import { startUserWorker, startProductWorker, startOrderWorker, startTallyScheduler } from './integrations/tally/index.ts';
 export { prismaClient } from './db/prisma.ts';
 
+
 const app: Express = express();
 app.disable('x-powered-by');
 app.use(cors());
