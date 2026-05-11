@@ -10,6 +10,7 @@ import cartRoutes from './routes/cart.ts';
 import orderRoutes from './routes/order.ts';
 export { prismaClient } from './db/prisma.ts';
 
+
 const app: Express = express();
 app.disable('x-powered-by');
 app.use(cors());
